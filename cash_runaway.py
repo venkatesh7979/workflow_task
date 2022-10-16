@@ -13,6 +13,9 @@ tickers_cik = pd.read_csv('listed_companies.csv')
 tickers_cik['cik_str'] = tickers_cik['cik_str'].astype('string')
 companies_bio = pd.read_csv('companies_biodata.csv')
 
+import os
+st.write(os.listdir()[:])
+
 def burnrate(df):
     c1,c2 = st.columns(2)
     a = df.rolling(3).mean()
