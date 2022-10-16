@@ -14,121 +14,125 @@ tickers_cik['cik_str'] = tickers_cik['cik_str'].astype('string')
 companies_bio = pd.read_csv('companies_biodata.csv')
 
 def burnrate(df):
-    c1,c2 = st.columns(2)
-    a = df.rolling(3).mean()
-    b = df.iloc[::-1].rolling(3).mean()
+    try:
+        df = df[['Assets','OperatingExpenses']]
+        c1,c2 = st.columns(2)
+        a = df.rolling(3).mean()
+        b = df.iloc[::-1].rolling(3).mean()
         
-    with c1:
-        df = a.fillna(b).fillna(df).interpolate(method='nearest').ffill().bfill()
-        
-        import numpy as np
-        x = range(min(50,len(df['OperatingExpenses'].index)))
-        y = df['OperatingExpenses'][-min(50,len(df['OperatingExpenses'].index)):]
-        z = np.polyfit(x, y, 3)
-        f = np.poly1d(z)
-        
-        x_new = np.linspace(max(x), max(x)+11, 12)
-        y_new = f(x_new)
-        x_tot = np.linspace(len(df['OperatingExpenses'].index),len(df['OperatingExpenses'].index)+11, 12)
-        
-        import plotly.graph_objects as go
-        from plotly.subplots import make_subplots
-        fig = make_subplots(specs=[[{"secondary_y": True}]])
-        fig.add_trace(go.Scatter(
-            x = list(range(len(df['OperatingExpenses'].index))),
-            y=df['OperatingExpenses'].values,
-            name='Recorded',
-        ))
-        
-        fig.add_trace(go.Scatter(
-            x = x_tot,
-            y=  y_new,
-            name='Projected',
-        ))
-        
-        fig.add_trace(go.Scatter(
-            x = x_tot,
-            y=  [y[-1]]*12,
-            name='Current Scenario',
-        ))
-        
-        fig.update_layout(
-                
-                paper_bgcolor='white',
-                plot_bgcolor='#fafafa',
-                hovermode='closest',
-                width = 800,
-                height=500,
-                title='Operating Expenses',
-                xaxis = dict(
-                    title="Quarters"
-                ),
-                yaxis = dict(
-                    title="Total value (USD)"
-                ),
-                legend=dict(yanchor="top", y=1, xanchor="left", x=0),
-                showlegend=True)
-        st.plotly_chart(fig, use_container_width=True)
-    with c2:
-        assests_projected = df['Assets'].tolist()[-1:]
-        assests_curr = df['Assets'].tolist()[-1:]
-        
-        for x in y_new:
-            assests_projected.append(assests_projected[-1]-x)
-        for x in [y[-1]]*12:
-            assests_curr.append(assests_curr[-1]-x)
-        
-        import plotly.graph_objects as go
-        from plotly.subplots import make_subplots
-        fig = make_subplots(specs=[[{"secondary_y": True}]])
-        
-        fig.add_trace(go.Scatter(
-            x = list(range(len(df['Assets'].index))),
-            y=df['Assets'].values,
-            name='Recorded',
-        ))
-        
-        fig.add_trace(go.Scatter(
-            x = x_tot,
-            y = assests_projected[1:],
-            name='With Projected Expenses',
-        ))
-        
-        fig.add_trace(go.Scatter(
-            x = x_tot,
-            y = assests_curr[1:],
-            name='With Current Expenses',
-        ))
-        
-        fig.update_layout(
-                
-                paper_bgcolor='white',
-                plot_bgcolor='#fafafa',
-                hovermode='closest',
-                width = 800,
-                height=500,
-                title='Projected Assests if company has no income but only the expenses.',
-                xaxis = dict(
-                    title="Quarters"
-                ),
-                yaxis = dict(
-                    title="Total value (USD)"
-                ),
-                legend=dict(yanchor="top", y=1, xanchor="left", x=0),
-                showlegend=True)
-        st.plotly_chart(fig, use_container_width=True)
-        
-    lasts = 0
-    for x in assests_projected[1:]:
-        if x>0:
-            lasts += 1
-    lasts1 = 0
-    for x in assests_curr[1:]:
-        if x>0:
-            lasts1 += 1
-    st.write('Will company sustain for next 12 quarters?')
-    st.write(f'Company can sustain for more {lasts} quarters with extrapolated operational expenses.')
-    st.write(f'Company can sustain for more {lasts1} quarters with current operational expenses.')
+        with c1:
+            df = a.fillna(b).fillna(df).interpolate(method='nearest').ffill().bfill()
+            
+            import numpy as np
+            x = range(min(50,len(df['OperatingExpenses'].index)))
+            y = df['OperatingExpenses'][-min(50,len(df['OperatingExpenses'].index)):]
+            z = np.polyfit(x, y, 3)
+            f = np.poly1d(z)
+            
+            x_new = np.linspace(max(x), max(x)+11, 12)
+            y_new = f(x_new)
+            x_tot = np.linspace(len(df['OperatingExpenses'].index),len(df['OperatingExpenses'].index)+11, 12)
+            
+            import plotly.graph_objects as go
+            from plotly.subplots import make_subplots
+            fig = make_subplots(specs=[[{"secondary_y": True}]])
+            fig.add_trace(go.Scatter(
+                x = list(range(len(df['OperatingExpenses'].index))),
+                y=df['OperatingExpenses'].values,
+                name='Recorded',
+            ))
+            
+            fig.add_trace(go.Scatter(
+                x = x_tot,
+                y=  y_new,
+                name='Projected',
+            ))
+            
+            fig.add_trace(go.Scatter(
+                x = x_tot,
+                y=  [y[-1]]*12,
+                name='Current Scenario',
+            ))
+            
+            fig.update_layout(
+                    
+                    paper_bgcolor='white',
+                    plot_bgcolor='#fafafa',
+                    hovermode='closest',
+                    width = 800,
+                    height=500,
+                    title='Operating Expenses',
+                    xaxis = dict(
+                        title="Quarters"
+                    ),
+                    yaxis = dict(
+                        title="Total value (USD)"
+                    ),
+                    legend=dict(yanchor="top", y=1, xanchor="left", x=0),
+                    showlegend=True)
+            st.plotly_chart(fig, use_container_width=True)
+        with c2:
+            assests_projected = df['Assets'].tolist()[-1:]
+            assests_curr = df['Assets'].tolist()[-1:]
+            
+            for x in y_new:
+                assests_projected.append(assests_projected[-1]-x)
+            for x in [y[-1]]*12:
+                assests_curr.append(assests_curr[-1]-x)
+            
+            import plotly.graph_objects as go
+            from plotly.subplots import make_subplots
+            fig = make_subplots(specs=[[{"secondary_y": True}]])
+            
+            fig.add_trace(go.Scatter(
+                x = list(range(len(df['Assets'].index))),
+                y=df['Assets'].values,
+                name='Recorded',
+            ))
+            
+            fig.add_trace(go.Scatter(
+                x = x_tot,
+                y = assests_projected[1:],
+                name='With Projected Expenses',
+            ))
+            
+            fig.add_trace(go.Scatter(
+                x = x_tot,
+                y = assests_curr[1:],
+                name='With Current Expenses',
+            ))
+            
+            fig.update_layout(
+                    
+                    paper_bgcolor='white',
+                    plot_bgcolor='#fafafa',
+                    hovermode='closest',
+                    width = 800,
+                    height=500,
+                    title='Projected Assests if company has no income but only the expenses.',
+                    xaxis = dict(
+                        title="Quarters"
+                    ),
+                    yaxis = dict(
+                        title="Total value (USD)"
+                    ),
+                    legend=dict(yanchor="top", y=1, xanchor="left", x=0),
+                    showlegend=True)
+            st.plotly_chart(fig, use_container_width=True)
+            
+        lasts = 0
+        for x in assests_projected[1:]:
+            if x>0:
+                lasts += 1
+        lasts1 = 0
+        for x in assests_curr[1:]:
+            if x>0:
+                lasts1 += 1
+        st.write('Will company sustain for next 12 quarters?')
+        st.write(f'Company can sustain for more {lasts} quarters with extrapolated operational expenses.')
+        st.write(f'Company can sustain for more {lasts1} quarters with current operational expenses.')
+    except:
+        st.write("Unable to fetch the burnrate info!")
     
 
 def lineplot(df,name):
@@ -199,10 +203,10 @@ def normal(select):
                 ticker = st.text_input('Enter the ticker name.', value="AAPL")
                 if ticker in tickers_cik['ticker'].values:
                     st.write('Showing Results For')
-                    st.write('Title : ',tickers_cik[tickers_cik['ticker'] == ticker]['title'][0])
-                    st.write('Ticker Symbol : ',tickers_cik[tickers_cik['ticker'] == ticker]['ticker'][0])
-                    st.write('CIK : ',tickers_cik[tickers_cik['ticker'] == ticker]['cik_str'][0])
-                    cik = tickers_cik[tickers_cik['ticker'] == ticker]['cik_str'][0]
+                    st.write('Title : ',tickers_cik[tickers_cik['ticker'] == ticker]['title'].values[0])
+                    st.write('Ticker Symbol : ',tickers_cik[tickers_cik['ticker'] == ticker]['ticker'].values[0])
+                    st.write('CIK : ',tickers_cik[tickers_cik['ticker'] == ticker]['cik_str'].values[0])
+                    cik = tickers_cik[tickers_cik['ticker'] == ticker]['cik_str'].values[0]
                     cik_act = '0'*(10-len(cik))+cik
                     show = 1
                 else:
@@ -212,9 +216,9 @@ def normal(select):
                 cik_act = '0'*(10-len(cik))+cik
                 if cik in tickers_cik['cik_str'].values:
                     st.write('Showing Results For')
-                    st.write('Title : ',tickers_cik[tickers_cik['cik_str'] == cik]['title'][0])
-                    st.write('Ticker Symbol : ',tickers_cik[tickers_cik['cik_str'] == cik]['ticker'][0])
-                    st.write('CIK : ',tickers_cik[tickers_cik['cik_str'] == cik]['cik_str'][0])
+                    st.write('Title : ',tickers_cik[tickers_cik['cik_str'] == cik]['title'].values[0])
+                    st.write('Ticker Symbol : ',tickers_cik[tickers_cik['cik_str'] == cik]['ticker'].values[0])
+                    st.write('CIK : ',tickers_cik[tickers_cik['cik_str'] == cik]['cik_str'].values[0])
                     show = 1
                 else:
                     st.write('No such CIK exists in our database.')
@@ -254,7 +258,11 @@ def normal(select):
                 fig = lineplot(df,'AssetsNoncurrent')
                 st.plotly_chart(fig, use_container_width=True)
             
+            #try:
+            st.markdown("Asset Reserves")
             burnrate(df)
+            #except:
+            #    st.write("Unable to fetch cash burn rate information!")
                 
             
             
