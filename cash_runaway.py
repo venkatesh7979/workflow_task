@@ -128,7 +128,7 @@ def burnrate(df):
         for x in assests_curr[1:]:
             if x>0:
                 lasts1 += 1
-        st.write('Will company sustain for next 12 quarters?')
+        st.write('Will company sustain for next 12 quarters from the last 10Q or 10K filing date?')
         st.write(f'Company can sustain for more {lasts} quarters with extrapolated operational expenses.')
         st.write(f'Company can sustain for more {lasts1} quarters with current operational expenses.')
     except:
@@ -222,10 +222,21 @@ def normal(select):
                     show = 1
                 else:
                     st.write('No such CIK exists in our database.')
+        file = 0
+        try:
             
-        if show and len(pd.read_csv(r'values/CIK'+cik_act+'_VALUES.csv'))!=0:
-            st.dataframe(companies_bio[companies_bio['CIK'] == cik_act])
             df = pd.read_csv(r'values/CIK'+cik_act+'_VALUES.csv')
+            file = 1
+        except:
+            st.write('No 10K or 10Q has ever been filed.')
+        if show and file and len(pd.read_csv(r'values/CIK'+cik_act+'_VALUES.csv'))!=0:
+            st.dataframe(companies_bio[companies_bio['CIK'] == cik_act])
+            
+            
+                
+            df = pd.read_csv(r'values/CIK'+cik_act+'_VALUES.csv')
+           
+            
             #Fill Null Values Strategically
             df['Date'] = df['Unnamed: 0']
             
