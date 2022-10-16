@@ -219,9 +219,9 @@ def normal(select):
                 else:
                     st.write('No such CIK exists in our database.')
             
-        if show and len(pd.read_csv(r'values\CIK'+cik_act+'_VALUES.csv'))!=0:
+        if show and len(pd.read_csv(r'values/CIK'+cik_act+'_VALUES.csv'))!=0:
             st.dataframe(companies_bio[companies_bio['CIK'] == cik_act])
-            df = pd.read_csv(r'values\CIK'+cik_act+'_VALUES.csv')
+            df = pd.read_csv(r'values/CIK'+cik_act+'_VALUES.csv')
             #Fill Null Values Strategically
             df['Date'] = df['Unnamed: 0']
             
